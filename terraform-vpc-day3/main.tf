@@ -137,3 +137,63 @@ resource "aws_security_group" "use1privins1" {
     cidr_blocks       = ["0.0.0.0/0"]
   }
 }
+
+#************************************************************
+# Add key pair of instance in code
+
+resource "tls_private_key" "use1ins1" {
+  algorithm = "RSA"
+  rsa_bits = 4096
+}
+
+resource "aws_key_pair" "use1ins1key1" {
+ key_name = "instnace1_public_key1"
+ public_key = tls_private_key.use1ins1.public_key_openssh
+} 
+
+# key download in your local system
+resource "local_file" "use1ins1key1" {
+   filename = "instance1_public_key1.pem"
+   content = tls_private_key.use1ins1.private_key_pem
+}
+
+
+resource "tls_private_key" "use1ins2" {
+  algorithm = "RSA"
+  rsa_bits = 4096
+}
+
+resource "aws_key_pair" "use1ins2key2" {
+ key_name = "instnace1_private_key1"
+ public_key = tls_private_key.use1ins2.public_key_openssh
+} 
+
+# key download in your local system
+resource "local_file" "use1ins2key2" {
+   filename = "instance1_private_key1.pem"
+   content = tls_private_key.use1ins2.private_key_pem
+}
+
+#*************** Add Instances in terraform code ***********
+
+resource "aws_instance" "use1ins1pub" {
+    ami = var.aws_ami_image
+    instance_type = var.aws_instnace_type
+    subnet_id = aws_subnet.useusubnet1.id
+    security_groups = [aws_security_group.use1pubins1.id]
+    key_name = aws_key_pair.use1ins1key1.key_name
+    tags = {
+       Name = "${var.orgnization}-${var.enviornment}-public-ins1"
+    }
+}
+
+resource "aws_instance" "use1ins1private" {
+    ami = var.aws_ami_image
+    instance_type = var.aws_instnace_type
+    subnet_id = aws_subnet.useusubnet2.id
+    security_groups = [aws_security_group.use1privins1.id]
+    key_name = aws_key_pair.use1ins2key2.key_name
+    tags = {
+       Name = "${var.orgnization}-${var.enviornment}-private-ins1"
+    }
+}
