@@ -145,6 +145,10 @@ resource "aws_security_group" "use1pubins1" {
     from_port         = 0
     cidr_blocks       = ["0.0.0.0/0"]
   }
+
+  lifecycle {
+    ignore_changes = [ ingress, egress ]
+  }
 }
 
 
@@ -200,6 +204,11 @@ resource "aws_db_instance" "use1dbins1" {
   tags = {
     Name  = "${var.orgnization}-${var.enviornment}-dbtest"
   }
+  
+  lifecycle {
+    ignore_changes = all
+  }
+
 }
 
 #######*****DB Instance connect purpose EC2 Instnace******#####
@@ -221,12 +230,19 @@ resource "local_file" "use1ins1key1" {
 }
 
 resource "aws_instance" "use1ins1pub" {
+    count = 2 
     ami = var.aws_ami_image
     instance_type = var.aws_instnace_type
     subnet_id = aws_subnet.useusubnet1.id
     security_groups = [aws_security_group.use1pubins1.id]
     key_name = aws_key_pair.use1ins1key1.key_name
     tags = {
-       Name = "${var.orgnization}-${var.enviornment}-public-ins1"
+       Name = "${var.orgnization}-${var.enviornment}-public-ins-${count.index}"
+    }
+    lifecycle {
+      # ignore_changes = all
+      #ignore_changes = [ security_groups , tags , key_name , subnet_id ]
+      prevent_destroy = false
+
     }
 }
