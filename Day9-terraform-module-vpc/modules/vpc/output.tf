@@ -1,10 +1,23 @@
-output "vpc_ids" {
-  description = "List of VPC IDs created"
-  value       = [for vpc in values(aws_vpc.use1) : vpc.id]
-}
+output "vpc_created" {
+  description = "List of VPC details created"
+  value       = { 
+    for k, v in local.vpc_block : k => { 
+      id        = try(v.id, null)
+      arn       = try(v.arn, null)
+      tags_all  = try(v.tags_all, null)
+      owner_id  = try(v.owner_id, null)
+    }
+  }
+} 
 
-output "public_subnet_ids" {
-  description = "List of Public Subnet IDs created"
-  value       = [for subnet in aws_subnet.useusubnet1 : subnet.id]  
+output "subnet_created" {
+  description = "Details of all the VPC created"
+  value = {
+    for k, v in local.subnet_block : k => {
+        id        = try(v.id, null)
+      arn       = try(v.arn, null)
+      tags_all  = try(v.tags_all, null)
+      owner_id  = try(v.owner_id, null)
+    }
+  }
 }
-

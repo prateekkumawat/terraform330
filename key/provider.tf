@@ -8,5 +8,5 @@ terraform {
 }
 
 provider "aws" {
-   region = var.aws_region  # define the AWS region
+   region = var.aws_region
 }

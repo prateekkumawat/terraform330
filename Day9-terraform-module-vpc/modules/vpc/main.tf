@@ -1,28 +1,26 @@
 resource "aws_vpc" "use1" {
-  for_each = var.vpc_details 
-    # For each block allows us to create multiple VPCs based on the map provided in var.vpc_details
-    cidr_block = each.value.vpc_cidr_block
-    instance_tenancy = each.value.instance_tenancy
-    enable_dns_hostnames = each.value.enable_dns_hostnames
-    enable_dns_support = each.value.enable_dns_support
-    tags = merge(
-      {
-        "Name" = "${var.orgnization}-${var.enviornment}-${each.key}-vpc"
-      },
-      each.value.tags
-    )
-}
+  for_each    = local.vpc_block
+    
+    cidr_block            = each.value.vpc_cidr_block
+    instance_tenancy      = each.value.instance_tenancy
+    enable_dns_hostnames  = each.value.enable_dns_hostnames
+    enable_dns_support    = each.value.enable_dns_support
+    tags                  = each.value.tags     
+  }
 
 resource "aws_subnet" "useusubnet1" {
-  for_each = var.subnet_details
-  cidr_block = each.value.subnet_cidr
-  availability_zone = each.value.availability_zones
+  for_each                = local.subnet_block
+  cidr_block              = each.value.cidr_block
+  availability_zone       = each.value.availability_zone
   map_public_ip_on_launch = each.value.map_public_ip_on_launch
-  vpc_id = each.value.vpc_id
-  tags = merge(
-    {
-      Name = "${var.orgnization}-${var.enviornment}-publicsubnet-${each.value.availability_zones}"
-    },
-    each.value.tags
-  ) 
+  vpc_id                  = aws_vpc.use1[each.value.vpc_key].id
+  tags                    = each.value.tags
 }
+
+resource "aws_internet_gateway" "use1" {
+  for_each = local.igw_block
+
+  vpc_id = aws_vpc.use1[each.value.vpc_key].id
+  tags   = merge(each.value.tags, { Name = "${each.key}-igw" })
+}
+

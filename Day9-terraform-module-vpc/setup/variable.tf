@@ -4,14 +4,12 @@ variable "enviornment" {}
 variable "vpc_details" {
   type = map(object({
     vpc_cidr_block           = string
-    prefix                   = optional(string)
     instance_tenancy         = optional(string)
     enable_dns_hostnames     = optional(bool, true)
     enable_dns_support       = optional(bool, true)
     tags                     = map(string)
   }))
 }
-
 variable "subnet_details" {
   type = map(object({
     cidr_block              = string
