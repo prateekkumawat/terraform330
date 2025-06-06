@@ -1,6 +1,6 @@
 aws_region = "us-east-1"
+aws_secret_key = "xxxxx"
 aws_access_key = "xxxx"
-aws_secret_key = "xxxx"
 aws_ami_image = "ami-0953476d60561c955"
 aws_instnace_type = "t2.micro"
 orgnization="highsky-use"
